@@ -10,14 +10,17 @@ use Symfony\Component\Yaml\Exception\ParseException;
 
 class YamlCheckCommand extends Command
 {
-    const OPTION_DIR = 'dir';
+    const
+        OPTION_DIR = 'dir',
+        OPTION_FIX = 'fix';
 
     protected function configure()
     {
         $this
             ->setName('yaml-alphabetical-check')
             ->setDescription('Check if yaml files is alphabetically sorted')
-            ->addOption(self::OPTION_DIR, null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Directories to check');
+            ->addOption(self::OPTION_DIR, null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Directories to check')
+            ->addOption(self::OPTION_FIX, null, InputOption::VALUE_NONE, 'Fix sort of yaml files');
     }
 
     /**
@@ -29,6 +32,7 @@ class YamlCheckCommand extends Command
         $output->writeln('<fg=green>Start checking yaml files.</fg=green>');
         $output->writeln('');
 
+        $errors = [];
         $yamlAlphabeticalChecker = new YamlAlphabeticalChecker();
         $pathToYamlFiles = YamlFilesPathService::getPathToYamlFiles($input->getOption(self::OPTION_DIR));
 
@@ -41,16 +45,28 @@ class YamlCheckCommand extends Command
             }
 
             try {
-                $sortCheckResult = $yamlAlphabeticalChecker->isDataSorted($pathToYamlFile);
+                $yamlArrayData = $yamlAlphabeticalChecker->parseData($pathToYamlFile);
+                $sortCheckResult = $yamlAlphabeticalChecker->isDataSorted($yamlArrayData);
+
+                if ($input->getOption(self::OPTION_FIX) === true) {
+                    if (!$sortCheckResult) {
+                        $yamlAlphabeticalChecker->sortData($yamlArrayData, $pathToYamlFile);
+                    }
+                }
 
                 if ($sortCheckResult) {
                     $output->writeln('<fg=green>OK</fg=green>');
                 } else {
                     $output->writeln('<fg=red>ERROR</fg=red>');
+                    $errors[] = 'e';
                 }
             } catch (ParseException $e) {
                 $output->writeln(sprintf('Unable to parse the YAML string: %s', $e->getMessage()));
             }
+        }
+
+        if (count($errors) > 0) {
+            $output->writeln('<fg=red>Tip: Use --fix command to fix errors.</fg=red>');
         }
 
         $output->writeln('');

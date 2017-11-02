@@ -33,13 +33,15 @@
     },
     "require": {
         "php": "~5.6 || ~7.0",
-        "symfony/console": "~3.0",
-        "symfony/yaml": "~3.0"
+        "mustangostang/spyc": "dev-master",
+        "symfony/console": "~3.3",
+        "symfony/yaml": "~3.3"
     },
     "require-dev": {
-        "phing/phing": "2.16.*",
-        "phpunit/phpunit": "5.7.* || 6.4.*",
-        "shopsys/coding-standards": "3.1.*"
+        "phing/phing": "~2.16",
+        "phpunit/phpunit": "~5.7 || ~6.4",
+        "shopsys/coding-standards": "~3.1",
+        "symfony/var-dumper": "^3.3"
     },
     "scripts": {
         "build": [
@@ -56,5 +58,11 @@
         "phpCs": "@php vendor/bin/phpcs --standard=vendor/shopsys/coding-standards/rulesetCS.xml --extensions=php --encoding=utf-8 --tab-width=4 -sp ./src ./tests",
         "phpMd": "@php vendor/bin/phpmd \"./src,./tests\" text vendor/shopsys/coding-standards/rulesetMD.xml --extensions=php",
         "phpUnitTest": "@php vendor/bin/phpunit tests"
-    }
+    },
+    "repositories": [
+        {
+            "url": "https://github.com/sspooky13/spyc.git",
+            "type": "git"
+        }
+    ]
 }
